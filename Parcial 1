@@ -1,0 +1,118 @@
+#include <iostream>
+#include <string>
+using namespace std;
+
+/*
+ * PARCIAL C++ - SOLUCIONES COMPLETAS
+ * Nombre: _________________________________
+ * Grupo: __________
+ * Fecha: ____/____/______
+ * 
+ * SECCIÓN A - OPCIÓN MÚLTIPLE (30 pts)
+ * =====================================
+ * 
+ * 1) ( X ) B) int x = 10;
+ * 
+ * 2) ( X ) B) 3 3.5
+ * 
+ * 3) ( X ) B) 0 1 1
+ * 
+ * 4) ( X ) C) Entra al else porque el valor es 0 tras la asignación
+ * 
+ * 5) ( X ) B) Ejecuta al menos una vez
+ * 
+ * 6) ( X ) C) cin >> a >> b;
+ * 
+ * 7) ( X ) A) 11
+ * 
+ * 8) ( X ) B) void f(int& n);
+ * 
+ * 9) ( X ) B) Salta a la siguiente iteración
+ * 
+ * 10) ( X ) A) (3 == 3) && !(2 > 5)
+ * 
+ * 
+ * SECCIÓN B - PREDICE LA SALIDA (30 pts)
+ * =======================================
+ * 
+ * 1) Respuesta: 11
+ * 
+ * 2) Respuesta: 0 1 2 
+ * 
+ * 3) Respuesta: par
+ * 
+ * 4) Respuesta: 3210
+ * 
+ * 5) Respuesta: 2 200
+ */
+
+
+#include <iostream>
+// SECCIÓN C - IMPLEMENTACIÓN DE FUNCIONES (40 pts)
+// =================================================
+
+// C1) max3 - Devuelve el mayor de tres enteros (10 pts)
+int max3(int a, int b, int c) {
+    if (a >= b && a >= c) {
+        return a;
+    } else if (b >= a && b >= c) {
+        return b;
+    } else {
+        return c;
+    }
+}
+
+// C2) sumaRango - Suma de todos los enteros en [a, b] (10 pts)
+int sumaRango(int a, int b) {
+    int suma = 0;
+    for (int i = a; i <= b; i++) {
+        suma += i;
+    }
+    return suma;
+}
+
+// C3) contieneDigito - Verifica si n contiene el dígito d (10 pts)
+bool contieneDigito(int n, int d) {
+    if (n == 0 && d == 0) {
+        return true;
+    }
+    while (n > 0) {
+        if (n % 10 == d) {
+            return true;
+        }
+        n = n / 10;
+    }
+    return false;
+}
+
+// C4) tablaMultiplicar - Imprime la tabla del 1 al 10 (10 pts)
+void tablaMultiplicar(int n) {
+    for (int i = 1; i <= 10; i++) {
+        std::cout << n << " x " << i << " = " << n * i << std::endl;
+    }
+}
+
+// FUNCIÓN MAIN - PRUEBAS
+// =======================
+int main() {
+    std::cout << "=== PRUEBAS DE LAS FUNCIONES ===" << std::endl << std::endl;
+    
+    // Prueba C1 - max3
+    std::cout << "C1) max3(5, 10, 3) = " << max3(5, 10, 3) << std::endl;
+    std::cout << "    max3(15, 10, 20) = " << max3(15, 10, 20) << std::endl << std::endl;
+    
+    // Prueba C2 - sumaRango
+    std::cout << "C2) sumaRango(1, 5) = " << sumaRango(1, 5) << std::endl;
+    std::cout << "    sumaRango(10, 15) = " << sumaRango(10, 15) << std::endl << std::endl;
+    
+    // Prueba C3 - contieneDigito
+    std::cout << "C3) contieneDigito(12345, 3) = " << contieneDigito(12345, 3) << std::endl;
+    std::cout << "    contieneDigito(12345, 7) = " << contieneDigito(12345, 7) << std::endl;
+    std::cout << "    contieneDigito(0, 0) = " << contieneDigito(0, 0) << std::endl << std::endl;
+    
+    // Prueba C4 - tablaMultiplicar
+    std::cout << "C4) tablaMultiplicar(7):" << std::endl;
+    tablaMultiplicar(7);
+    
+    return 0;
+}
