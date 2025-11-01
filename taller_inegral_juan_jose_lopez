@@ -1,0 +1,384 @@
+/*
+  juan_jose_lopez_taller_integral.c
+  Taller integral en C - 8 ejercicios*/
+  
+
+#include <stdio.h>
+#include <string.h>
+#include <ctype.h>
+#include <stdlib.h>
+
+#define MAX_N_ARR 100000
+#define MAX_SMALL 100
+#define MAX_LINE 1024
+
+
+/* ---------------------------------------------------------------------
+   Ejercicio 1: Estadísticas básicas de un arreglo
+   --------------------------------------------------------------------- */
+void ejercicio1(void)
+{
+    int n;
+    printf("Ingrese cantidad de elementos: ");
+    fflush(stdout);
+    if (scanf("%d", &n) != 1) return;
+
+    if (n <= 0 || n > MAX_N_ARR) {
+        printf("n fuera de rango (1..%d)\n", MAX_N_ARR);
+        return;
+    }
+
+    int a[MAX_N_ARR];
+    for (int i = 0; i < n; ++i) {
+        printf("Elemento %d: ", i + 1);
+        fflush(stdout);
+        scanf("%d", &a[i]);
+    }
+
+    int minv = a[0], maxv = a[0];
+    long long suma = 0;
+    for (int i = 0; i < n; ++i) {
+        if (a[i] < minv) minv = a[i];
+        if (a[i] > maxv) maxv = a[i];
+        suma += a[i];
+    }
+    double prom = (double)suma / n;
+    printf("min=%d max=%d prom=%.2f\n", minv, maxv, prom);
+}
+
+
+/* ---------------------------------------------------------------------
+   Ejercicio 2: Rotación circular in-place
+   --------------------------------------------------------------------- */
+static void reverse_segment(int *arr, int i, int j)
+{
+    while (i < j) {
+        int tmp = arr[i];
+        arr[i] = arr[j];
+        arr[j] = tmp;
+        ++i; --j;
+    }
+}
+
+void ejercicio2(void)
+{
+    int n, k;
+    printf("Ingrese n y k: ");
+    fflush(stdout);
+    if (scanf("%d %d", &n, &k) != 2) return;
+
+    if (n <= 0 || n > MAX_SMALL) {
+        printf("n fuera de rango (1..%d)\n", MAX_SMALL);
+        return;
+    }
+
+    int a[MAX_SMALL];
+    printf("Ingrese %d números: ", n);
+    fflush(stdout);
+    for (int i = 0; i < n; ++i) scanf("%d", &a[i]);
+
+    k = (k % n + n) % n;
+    reverse_segment(a, 0, n - 1);
+    reverse_segment(a, 0, k - 1);
+    reverse_segment(a, k, n - 1);
+
+    printf("Resultado: ");
+    for (int i = 0; i < n; ++i) printf("%d ", a[i]);
+    printf("\n");
+}
+
+
+/* ---------------------------------------------------------------------
+   Ejercicio 3: Normalizar cadenas
+   --------------------------------------------------------------------- */
+size_t normalizar_espacios(const char *in, char *out, size_t outcap)
+{
+    const char *src = in;
+    char *dst = out;
+    int en_palabra = 0;
+
+    while (*src && (size_t)(dst - out) < outcap - 1) {
+        unsigned char c = (unsigned char)*src;
+        if (!isspace(c)) {
+            *dst++ = *src;
+            en_palabra = 1;
+        } else if (en_palabra) {
+            *dst++ = ' ';
+            en_palabra = 0;
+        }
+        ++src;
+    }
+    if (dst > out && *(dst - 1) == ' ') --dst;
+    *dst = '\0';
+    return (size_t)(dst - out);
+}
+
+void ejercicio3(void)
+{
+    char linea[MAX_LINE];
+    printf("Ingrese una línea de texto: ");
+    fflush(stdout);
+    getchar(); // limpiar salto previo
+    fgets(linea, sizeof(linea), stdin);
+
+    char out[1001];
+    size_t len = normalizar_espacios(linea, out, sizeof(out));
+    printf("Salida: \"%s\" (longitud %zu)\n", out, len);
+}
+
+
+/* ---------------------------------------------------------------------
+   Ejercicio 4: Matriz - suma por filas y columnas
+   --------------------------------------------------------------------- */
+void ejercicio4(void)
+{
+    int m, n;
+    printf("Ingrese filas y columnas: ");
+    fflush(stdout);
+    if (scanf("%d %d", &m, &n) != 2) return;
+
+    if (m <= 0 || m > MAX_SMALL || n <= 0 || n > MAX_SMALL) {
+        printf("Dimensiones fuera de rango (1..%d)\n", MAX_SMALL);
+        return;
+    }
+
+    int A[MAX_SMALL][MAX_SMALL];
+    int sumF[MAX_SMALL] = {0};
+    int sumC[MAX_SMALL] = {0};
+
+    printf("Ingrese los elementos de la matriz (%d x %d):\n", m, n);
+    fflush(stdout);
+    for (int i = 0; i < m; ++i)
+        for (int j = 0; j < n; ++j)
+            scanf("%d", &A[i][j]);
+
+    for (int i = 0; i < m; ++i)
+        for (int j = 0; j < n; ++j) {
+            sumF[i] += A[i][j];
+            sumC[j] += A[i][j];
+        }
+
+    printf("sumF: [");
+    for (int i = 0; i < m; ++i)
+        printf("%d%s", sumF[i], (i + 1 < m) ? "," : "");
+    printf("]\n");
+
+    printf("sumC: [");
+    for (int j = 0; j < n; ++j)
+        printf("%d%s", sumC[j], (j + 1 < n) ? "," : "");
+    printf("]\n");
+}
+
+
+/* ---------------------------------------------------------------------
+   Ejercicio 5: Registro de estudiantes
+   --------------------------------------------------------------------- */
+typedef struct {
+    char nombre[40];
+    int edad;
+    double promedio;
+} Estudiante;
+
+static int cmp_prom_desc(const void *a, const void *b)
+{
+    double pa = ((const Estudiante *)a)->promedio;
+    double pb = ((const Estudiante *)b)->promedio;
+    return (pa < pb) - (pa > pb);
+}
+
+int buscar_nombre(const Estudiante *v, int n, const char *clave)
+{
+    for (int i = 0; i < n; ++i)
+        if (strcmp(v[i].nombre, clave) == 0)
+            return i;
+    return -1;
+}
+
+void ejercicio5(void)
+{
+    int n;
+    printf("Ingrese número de estudiantes: ");
+    fflush(stdout);
+    if (scanf("%d", &n) != 1) return;
+
+    if (n <= 0 || n > MAX_SMALL) {
+        printf("n fuera de rango (1..%d)\n", MAX_SMALL);
+        return;
+    }
+
+    Estudiante v[MAX_SMALL];
+    for (int i = 0; i < n; ++i) {
+        printf("Nombre Edad Promedio: ");
+        fflush(stdout);
+        scanf("%s %d %lf", v[i].nombre, &v[i].edad, &v[i].promedio);
+    }
+
+    qsort(v, n, sizeof(Estudiante), cmp_prom_desc);
+
+    printf("Top 3:\n");
+    for (int i = 0; i < n && i < 3; ++i)
+        printf("%s %.2f\n", v[i].nombre, v[i].promedio);
+
+    char clave[40];
+    printf("Buscar estudiante por nombre: ");
+    fflush(stdout);
+    scanf("%s", clave);
+    int pos = buscar_nombre(v, n, clave);
+    if (pos >= 0)
+        printf("Encontrado en índice %d\n", pos);
+    else
+        printf("No encontrado\n");
+}
+
+
+/* ---------------------------------------------------------------------
+   Ejercicio 6: Lista simple simulada (sin malloc)
+   --------------------------------------------------------------------- */
+typedef struct {
+    int x;
+} Nodo;
+
+void ejercicio6(void)
+{
+    Nodo lista[MAX_SMALL];
+    int size = 0;
+    char cmd[16];
+    int val;
+
+    printf("Comandos: pf X | pb X | pop | fin\n");
+    fflush(stdout);
+    while (scanf("%15s", cmd) == 1) {
+        if (strcmp(cmd, "pf") == 0) {
+            scanf("%d", &val);
+            for (int i = size; i > 0; --i)
+                lista[i] = lista[i - 1];
+            lista[0].x = val;
+            size++;
+        } else if (strcmp(cmd, "pb") == 0) {
+            scanf("%d", &val);
+            lista[size++].x = val;
+        } else if (strcmp(cmd, "pop") == 0) {
+            if (size > 0) {
+                for (int i = 0; i < size - 1; ++i)
+                    lista[i] = lista[i + 1];
+                size--;
+            }
+        } else if (strcmp(cmd, "fin") == 0) break;
+    }
+
+    printf("Lista final: ");
+    for (int i = 0; i < size; ++i) printf("%d ", lista[i].x);
+    printf("\n");
+}
+
+
+/* ---------------------------------------------------------------------
+   Ejercicio 7: Punteros a función (callbacks)
+   --------------------------------------------------------------------- */
+static int doble(int x) { return 2 * x; }
+static int cuadrado(int x) { return x * x; }
+
+void aplicar(int *a, int n, int (*op)(int))
+{
+    for (int i = 0; i < n; ++i)
+        a[i] = op(a[i]);
+}
+
+void ejercicio7(void)
+{
+    int a[5] = {1, 2, 3, 4, 5};
+    aplicar(a, 5, doble);
+    printf("Doble: ");
+    for (int i = 0; i < 5; ++i) printf("%d ", a[i]);
+    printf("\n");
+    aplicar(a, 5, cuadrado);
+    printf("Cuadrado: ");
+    for (int i = 0; i < 5; ++i) printf("%d ", a[i]);
+    printf("\n");
+}
+
+
+/* ---------------------------------------------------------------------
+   Ejercicio 8: Archivo + estructuras (ventas)
+   --------------------------------------------------------------------- */
+typedef struct {
+    char prod[32];
+    int unidades;
+    double precio;
+} Venta;
+
+void ejercicio8(void)
+{
+    FILE *f = fopen("ventas.csv", "r");
+    if (!f) {
+        printf("Error: no se pudo abrir ventas.csv\n");
+        return;
+    }
+
+    Venta v[100];
+    int n = 0;
+    char linea[MAX_LINE];
+    while (fgets(linea, sizeof(linea), f) && n < 100) {
+        sscanf(linea, "%31[^,],%d,%lf", v[n].prod, &v[n].unidades, &v[n].precio);
+        n++;
+    }
+    fclose(f);
+
+    if (n == 0) {
+        printf("Archivo vacío o mal formado\n");
+        return;
+    }
+
+    double total = 0, mayor = 0;
+    int idx = 0;
+    for (int i = 0; i < n; ++i) {
+        double val = v[i].unidades * v[i].precio;
+        total += val;
+        if (val > mayor) {
+            mayor = val;
+            idx = i;
+        }
+    }
+
+    printf("Total vendido: %.2f\n", total);
+    printf("Producto más vendido: %s\n", v[idx].prod);
+    printf("Ticket promedio: %.2f\n", total / n);
+}
+
+
+/* ---------------------------------------------------------------------
+   Menú principal
+   --------------------------------------------------------------------- */
+int main(void)
+{
+    int opcion = -1;
+    while (1) {
+       
+        printf("1 - Estadísticas \n");
+        printf("2 - Rotación circular \n");
+        printf("3 - Normalizar cadena \n");
+        printf("4 - Matriz sumas \n");
+        printf("5 - Estudiantes \n");
+        printf("6 - Lista simulada \n");
+        printf("7 - Callbacks \n");
+        printf("8 - Ventas desde archivo \n");
+        printf("0 - Salir\n");
+        printf("Ingrese opción: ");
+        fflush(stdout);
+
+        if (scanf("%d", &opcion) != 1) return 0;
+        switch (opcion) {
+            case 1: ejercicio1(); break;
+            case 2: ejercicio2(); break;
+            case 3: ejercicio3(); break;
+            case 4: ejercicio4(); break;
+            case 5: ejercicio5(); break;
+            case 6: ejercicio6(); break;
+            case 7: ejercicio7(); break;
+            case 8: ejercicio8(); break;
+            case 0: printf("Saliendo...\n"); return 0;
+            default: printf("Opción inválida\n");
+        }
+    }
+    return 0;
+}
